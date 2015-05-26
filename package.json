@@ -1,0 +1,23 @@
+{
+  "name": "SockIRC",
+  "version": "0.0.1",
+  "description": "An IRC bot written in javascript",
+  "main": "sockirc.js",
+  "repository": "https://github.com/AccaliaDeElementia/SockIRC",
+  "author": "Accalia Elementia <Accalia.de.elementia>",
+  "dependencies": {
+    "irc": "^0.3.12",
+    "js-yaml": "^3.3.1"
+  },
+  "optionalDependencies": {},
+  "devDependencies": {
+    "chai": "^2.3.0",
+    "eslint": "^0.21.2",
+    "mocha": "^2.2.5",
+    "mocha-traceur": "^2.1.0"
+  },
+  "scripts": {
+    "lint": "./node_modules/eslint/bin/eslint.js .",
+    "test": "./node_modules/eslint/bin/eslint.js . && ./node_modules/mocha/bin/mocha --compilers js:mocha-traceur ."
+  }
+}
