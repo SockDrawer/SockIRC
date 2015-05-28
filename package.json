@@ -14,10 +14,12 @@
     "chai": "^2.3.0",
     "eslint": "^0.21.2",
     "mocha": "^2.2.5",
-    "mocha-traceur": "^2.1.0"
+    "mocha-traceur": "^2.1.0",
+    "sinon": "^1.14.1"
   },
   "scripts": {
-    "lint": "./node_modules/eslint/bin/eslint.js .",
-    "test": "./node_modules/eslint/bin/eslint.js . && ./node_modules/mocha/bin/mocha --compilers js:mocha-traceur ."
+    "run": "nodejs --harmony SockBot.js",
+    "lint": "eslint .",
+    "test": "mocha -st --compilers js:mocha-traceur"
   }
 }
