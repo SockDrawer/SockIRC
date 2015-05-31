@@ -1,12 +1,12 @@
 'use strict';
 /*globals describe */
-var EventEmitter = require('events').EventEmitter,
+const EventEmitter = require('events').EventEmitter,
     IRCClient = require('irc').Client;
 
-var spaces = /[ \f\r\t\v\u00a0\u1680\u180e\u2000-\u200a\u2028\u2029\u202f\u205f\u3000]+/;
+const spaces = /[ \f\r\t\v\u00a0\u1680\u180e\u2000-\u200a\u2028\u2029\u202f\u205f\u3000]+/;
 
 function registerListeners(client, handleit) {
-    var handlers = {
+    const handlers = {
         join: (channel, nick, message) => handleit('join', nick, channel, 'joined channel ' + channel, message),
         part: (channel, nick, reason, message) => handleit('part', nick, channel,
             'left channel ' + channel + ' (' + reason + ')', message),
@@ -37,7 +37,7 @@ function registerListeners(client, handleit) {
 }
 
 function selectEvent(type) {
-    var event = 'unknown';
+    let event = 'unknown';
     if (['message', 'pm', 'notice', 'action'].indexOf(type) >= 0) {
         event = 'message_received';
     } else if (['join', 'part', 'kick'].indexOf(type) >= 0) {
@@ -53,7 +53,7 @@ function selectEvent(type) {
 }
 
 function buildEvent(type, who, what, text, raw) {
-    var command, args = [];
+    let command, args = [];
     text = text || '';
     if (text[0] === '!') {
         args = text.split(spaces);
@@ -72,7 +72,7 @@ function buildEvent(type, who, what, text, raw) {
 
 function getHandler(emitter) {
     return function handleMessage(type, who, what, text, raw) {
-        var event = selectEvent(type),
+        const event = selectEvent(type),
             payload = buildEvent(type, who, what, text, raw);
         emitter.emit(event, payload);
     };
@@ -80,20 +80,20 @@ function getHandler(emitter) {
 
 function augmentEvents(events, client) {
     events.say = (target, text) => {
-        var payload = buildEvent('selfMessage', client.opt.nick, target, text, {});
-        var event = selectEvent('selfMessage');
+        const payload = buildEvent('selfMessage', client.opt.nick, target, text, {});
+        const event = selectEvent('selfMessage');
         client.say(target, text);
         events.emit(event, payload);
     };
     events.notice = (target, text) => {
-        var payload = buildEvent('selfNotice', client.opt.nick, target, text, {});
-        var event = selectEvent('selfNotice');
+        const payload = buildEvent('selfNotice', client.opt.nick, target, text, {});
+        const event = selectEvent('selfNotice');
         client.notice(target, text);
         events.emit(event, payload);
     };
     events.action = (target, action) => {
-        var payload = buildEvent('selfAction', client.opt.nick, target, action, {});
-        var event = selectEvent('selfAction');
+        const payload = buildEvent('selfAction', client.opt.nick, target, action, {});
+        const event = selectEvent('selfAction');
         client.action(target, action);
         events.emit(event, payload);
     };
@@ -102,7 +102,7 @@ function augmentEvents(events, client) {
 }
 
 function connect(config) {
-    var events = new EventEmitter(),
+    const events = new EventEmitter(),
         client = new IRCClient(config.server, config.nick, {
             channels: config.channels,
             userName: config.nick,
@@ -113,6 +113,7 @@ function connect(config) {
         handler = getHandler(events);
     registerListeners(client, handler);
     augmentEvents(events, client);
+    /* istanbul ignore else */
     if (typeof describe === 'function') {
         // expose client when in test mode
         events.client = client;
@@ -124,7 +125,7 @@ function connect(config) {
 }
 
 exports.connect = connect;
-
+/* istanbul ignore else */
 if (typeof describe === 'function') {
     //test is running
     exports.registerListeners = registerListeners;

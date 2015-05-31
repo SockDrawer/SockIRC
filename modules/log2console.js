@@ -2,7 +2,7 @@
 
 // This is a minimal module to show what the module API is.
 
-var time = () => new Date().toISOString().replace(/^[^T]+T/, '').replace(/[.].*$/, ''),
+const time = () => new Date().toISOString().replace(/^[^T]+T/, '').replace(/[.].*$/, ''),
     log = (actor, target, text) => {
         if (!text) {
             text = target;
