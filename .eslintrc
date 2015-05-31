@@ -4,6 +4,7 @@
     "es6": true
   },
   "rules": {
+    "no-var": 2,
     "block-scoped-var": 2,
     "brace-style": [2, "1tbs"],
     "camelcase": 1,
