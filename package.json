@@ -6,20 +6,19 @@
   "repository": "https://github.com/AccaliaDeElementia/SockIRC",
   "author": "Accalia Elementia <Accalia.de.elementia>",
   "dependencies": {
-    "irc": "^0.3.12",
-    "js-yaml": "^3.3.1"
+    "irc": "^0.3.12"
   },
   "optionalDependencies": {},
   "devDependencies": {
     "chai": "^2.3.0",
     "eslint": "^0.21.2",
+    "istanbul-harmony": "^0.3.12",
     "mocha": "^2.2.5",
-    "mocha-traceur": "^2.1.0",
     "sinon": "^1.14.1"
   },
   "scripts": {
-    "run": "nodejs --harmony SockBot.js",
+    "run": "node --harmony SockBot.js",
     "lint": "eslint .",
-    "test": "mocha -st --compilers js:mocha-traceur"
+    "test":  "node --harmony node_modules/.bin/istanbul cover _mocha -- -u exports -R nyan"
   }
 }
