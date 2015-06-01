@@ -39,7 +39,7 @@ exports.begin = function (client) {
     client.on('user_action', (payload) => log(payload.who, payload.what, payload.text));
     client.on('channel_action', (payload) => log(payload.who, payload.what, payload.text));
     client.on('error', (payload) => log('ERROR', '', JSON.stringify(payload.raw)));
-    setTimeout(() => client.notice('accalia', 'sockbot has connected'), 1);
+    //setTimeout(() => client.notice('accalia', 'sockbot has connected'), 1);
 };
 
 /**

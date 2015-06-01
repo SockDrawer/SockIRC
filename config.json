@@ -1,0 +1,8 @@
+{
+    "server": "irc.darkmyst.org",
+    "nick": "sockbot",
+    "channels": ["#crossings_ooc"],
+    "plugins": {
+        "logger": {}
+    }
+}

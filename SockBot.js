@@ -2,14 +2,6 @@
 
 const client = require('./client'),
     util = require('./util');
-const devconfig = {
-    server: 'irc.darkmyst.org',
-    nick: 'sockbot',
-    channels: ['#crossings_ooc'],
-    plugins: {
-        logger: {}
-    }
-};
 
 function loadPlugin(pluginName) {
     let module = util.loadModule('./plugins/' + pluginName);
@@ -20,6 +12,21 @@ function loadPlugin(pluginName) {
         util.warn('Plugin ' + pluginName + ' does not define config defaults');
     }
     return module;
+}
+
+function loadPlugins(config) {
+    const plugins = [];
+    if (config.plugins) {
+        for (let pluginName in config.plugins) {
+            const cfg = config.plugins[pluginName];
+            try {
+                let plugin = loadPlugin(pluginName);
+                plugin.config = mergeConfig(plugin.defaults || {}, cfg);
+                plugins.push(plugin);
+            } catch (e) {} //eslint-disable-line no-empty
+        }
+    }
+    return plugins;
 }
 
 function mergeConfig(base, config) {
@@ -40,20 +47,6 @@ function mergeConfig(base, config) {
     return merge(base, config);
 }
 
-function loadPlugins(config) {
-    const plugins = [];
-    if (config.plugins) {
-        for (let pluginName in config.plugins) {
-            const cfg = config.plugins[pluginName];
-            try {
-                let plugin = loadPlugin(pluginName);
-                plugin.config = mergeConfig(plugin.defaults || {}, cfg);
-                plugins.push(plugin);
-            } catch (e) {} //eslint-disable-line no-empty
-        }
-    }
-    return plugins;
-}
 
 function readJson(path, callback) {
     util.readFile(path, (err, contents) => {
@@ -80,9 +73,14 @@ function readJson(path, callback) {
 /* istanbul ignore if */
 if (require.main === module) {
     // only start the client if running as main mocule
-    const plugins = loadPlugins(devconfig);
-    const events = client.connect(devconfig);
-    plugins.forEach((plug) => plug.begin(events));
+    readJson(process.argv[2], (err, config) => {
+        if (err) {
+            return util.error(err);
+        }
+        const plugins = loadPlugins(config);
+        const events = client.connect(config);
+        plugins.forEach((plug) => plug.begin(events));
+    });
 }
 
 /* istanbul ignore else */

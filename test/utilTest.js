@@ -41,6 +41,18 @@ describe('util', () => {
             spy.lastCall.args.should.deep.equal(['test message 2']);
         });
     });
+    describe('error()', () => {
+        it('should call console.error with provided message', () => {
+            let log = console.error, //eslint-disable-line no-console
+                spy = sinon.spy();
+            util.reset();
+            console.error = spy; //eslint-disable-line no-console
+            util.error('test message 2');
+            console.error = log; //eslint-disable-line no-console
+            spy.called.should.be.true;
+            spy.lastCall.args.should.deep.equal(['test message 2']);
+        });
+    });
     describe('readFile()', () => {
         it('should be fs.readFile()', () => {
             util.reset();

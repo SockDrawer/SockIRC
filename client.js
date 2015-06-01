@@ -1,5 +1,4 @@
 'use strict';
-/*globals describe */
 const EventEmitter = require('events').EventEmitter,
     IRCClient = require('irc').Client;
 
@@ -114,7 +113,7 @@ function connect(config) {
     registerListeners(client, handler);
     augmentEvents(events, client);
     /* istanbul ignore else */
-    if (typeof describe === 'function') {
+    if (typeof GLOBAL.describe === 'function') {
         // expose client when in test mode
         events.client = client;
     } else {
@@ -126,7 +125,7 @@ function connect(config) {
 
 exports.connect = connect;
 /* istanbul ignore else */
-if (typeof describe === 'function') {
+if (typeof GLOBAL.describe === 'function') {
     //test is running
     exports.registerListeners = registerListeners;
     exports.selectEvent = selectEvent;
