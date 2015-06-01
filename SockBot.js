@@ -1,28 +1,62 @@
 'use strict';
 
-const fs = require('fs');
-
 const client = require('./client'),
-    logger = require('./modules/log2console');
-const config = {
+    util = require('./util');
+const devconfig = {
     server: 'irc.darkmyst.org',
     nick: 'sockbot',
-    channels: ['#crossings_ooc']
+    channels: ['#crossings_ooc'],
+    plugins: {
+        logger: {}
+    }
 };
 
 function loadPlugin(pluginName) {
-    let module = (exports.require || require)('./plugins/' + pluginName);
+    let module = util.loadModule('./plugins/' + pluginName);
     if (typeof module.begin !== 'function') {
         throw new Error('Plugin ' + pluginName + ' does not export required function `begin(client, config)`');
     }
-    if (typeof module.config !== 'object') {
-        warn('Plugin ' + pluginName + ' does not define config defaults');
+    if (typeof module.defaults !== 'object') {
+        util.warn('Plugin ' + pluginName + ' does not define config defaults');
     }
     return module;
 }
 
+function mergeConfig(base, config) {
+    const merge = (a, b) => {
+        for (let name in b) {
+            if (typeof b[name] === 'object' && !Array.isArray(b[name])) {
+                a[name] = merge(a[name] || {}, b[name]);
+            } else {
+                a[name] = b[name];
+            }
+        }
+        return a;
+    };
+    if (!base) {
+        return JSON.parse(JSON.stringify(config));
+    }
+    base = JSON.parse(JSON.stringify(base));
+    return merge(base, config);
+}
+
+function loadPlugins(config) {
+    const plugins = [];
+    if (config.plugins) {
+        for (let pluginName in config.plugins) {
+            const cfg = config.plugins[pluginName];
+            try {
+                let plugin = loadPlugin(pluginName);
+                plugin.config = mergeConfig(plugin.defaults || {}, cfg);
+                plugins.push(plugin);
+            } catch (e) {} //eslint-disable-line no-empty
+        }
+    }
+    return plugins;
+}
+
 function readJson(path, callback) {
-    (exports.fs || fs).readFile(path, (err, contents) => {
+    util.readFile(path, (err, contents) => {
         if (err) {
             return callback(err);
         }
@@ -43,29 +77,18 @@ function readJson(path, callback) {
     });
 }
 
+/* istanbul ignore if */
 if (require.main === module) {
     // only start the client if running as main mocule
-    const events = client.connect(config);
-    logger.begin(events);
+    const plugins = loadPlugins(devconfig);
+    const events = client.connect(devconfig);
+    plugins.forEach((plug) => plug.begin(events));
 }
 
-/* eslint-disable no-console */
-const log = (output) => (exports.log || console.log)(output),
-    warn = (output) => (exports.warn || console.warn)(output);
-/* eslint-enable no-console */
-
+/* istanbul ignore else */
 if (typeof GLOBAL.describe === 'function') {
-    //test is running, export internals to test
-    const err = () => {
-        throw new Error('i should be overridden in test');
-    };
-    // export some replacement objects to allow test overriding
-    exports.fs = err;
-    exports.require = err;
-    exports.log = err;
-    exports.warn = err;
-
     exports.readJson = readJson;
     exports.loadPlugin = loadPlugin;
-
+    exports.mergeConfig = mergeConfig;
+    exports.loadPlugins = loadPlugins;
 }

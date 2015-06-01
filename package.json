@@ -19,6 +19,6 @@
   "scripts": {
     "run": "node --harmony SockBot.js",
     "lint": "eslint .",
-    "test":  "node --harmony node_modules/.bin/istanbul cover _mocha -- -u exports -R nyan"
+    "test":  "node --harmony node_modules/.bin/istanbul cover _mocha -- --recursive -R nyan"
   }
 }

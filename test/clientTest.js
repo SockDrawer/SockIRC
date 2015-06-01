@@ -104,7 +104,19 @@ describe('client', () => {
                 handles[event].apply(this, events[event].args);
             });
         });
-        it('should not propagate at message irected at bot (should use PM instead)')
+        it('should not propagate at message directed at bot (should use PM instead)', () => {
+            const spy = sinon.spy(),
+                handles = {};
+            client.registerListeners({
+                opt: {
+                    nick: 'testbot'
+                },
+                on: (e, fn) => handles[e] = fn
+            }, spy);
+            spy.called.should.be.false;
+            handles.message('user', 'testbot');
+            spy.called.should.be.false;
+        });
     });
     describe('selectEvent()', () => {
         Object.keys(messages).forEach((type) => {
