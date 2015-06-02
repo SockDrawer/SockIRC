@@ -6,7 +6,7 @@ node_js:
 before_script:
   - rm -rf ./coverage
 after_script:
-  - [ -e ./coverage/lcov.info ] && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
+  - test -e ./coverage/lcov.info && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
 env:
   global:
     COVERALLS_SERVICE_NAME: travis-ci
