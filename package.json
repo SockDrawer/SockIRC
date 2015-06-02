@@ -11,6 +11,7 @@
   "optionalDependencies": {},
   "devDependencies": {
     "chai": "^2.3.0",
+    "coveralls": "^2.11.2",
     "eslint": "^0.21.2",
     "istanbul-harmony": "^0.3.12",
     "mocha": "^2.2.5",
@@ -19,6 +20,6 @@
   "scripts": {
     "start": "node --harmony SockBot.js",
     "lint": "eslint .",
-    "test":  "node --harmony --harmony_arrow_functions  node_modules/.bin/istanbul cover _mocha -- --recursive -R dot"
+    "test": "node --harmony --harmony_arrow_functions  node_modules/.bin/istanbul cover _mocha -- --recursive -R dot"
   }
 }
