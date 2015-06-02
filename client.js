@@ -106,6 +106,7 @@ function connect(config) {
             channels: config.channels,
             userName: config.nick,
             realName: config.nick,
+            password: config.password,
             floodProtection: true,
             autoConnect: false
         }),
