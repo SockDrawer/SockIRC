@@ -15,7 +15,7 @@ function error(message) {
 }
 
 function loadModule(path) {
-    require(path);
+    return require(path);
 }
 exports.log = log;
 exports.warn = warn;
