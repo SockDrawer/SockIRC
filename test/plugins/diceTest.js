@@ -226,12 +226,12 @@ describe('dice', () => {
             let event = {
                 type: 'action',
                 who: 'foo',
-                what: 'bar'
+                reply: 'bar'
             };
             dice.reply(client, event, 'i am test');
             client.say.called.should.be.true;
             client.notice.called.should.be.false;
-            client.say.lastCall.args.should.deep.equal([event.what, 'foo: i am test']);
+            client.say.lastCall.args.should.deep.equal([event.reply, 'foo: i am test']);
         });
     });
     describe('rollDice()', () => {

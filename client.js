@@ -52,16 +52,20 @@ function selectEvent(type) {
 }
 
 function buildEvent(type, who, what, text, raw) {
-    let command, args = [];
+    let command, args = [], reply = what;
     text = text || '';
     if (text[0] === '!') {
         args = text.split(spaces);
         command = args.shift();
     }
+    if (type === 'pm'){
+        reply = who;
+    }
     return {
         type: type,
         who: who,
         what: what,
+        reply: reply,
         text: text,
         raw: raw,
         command: command,

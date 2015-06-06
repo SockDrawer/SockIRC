@@ -45,7 +45,7 @@ function reply(client, event, response) {
         response += ' || ' + event.args.join(' ');
     }
     if (event.type === 'action') {
-        client.say(event.what, event.who + ': ' + response);
+        client.say(event.reply, event.who + ': ' + response);
     } else {
         client.notice(event.who, response);
     }

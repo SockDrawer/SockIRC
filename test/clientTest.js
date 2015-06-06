@@ -128,7 +128,7 @@ describe('client', () => {
     });
     describe('buildEvent()', () => {
         it('should generate correct properties from buildEvent', () => {
-            const keys = ['type', 'who', 'what', 'text', 'raw', 'command', 'args'];
+            const keys = ['type', 'who', 'what', 'reply', 'text', 'raw', 'command', 'args'];
             const result = client.buildEvent('test', 'test', 'test', 'test', rawMessage);
             Object.keys(result).should.deep.equal(keys);
         });
@@ -140,9 +140,24 @@ describe('client', () => {
                 text: 'text',
                 raw: rawMessage,
                 command: undefined,
-                args: []
+                args: [],
+                reply: 'test3'
             };
             let result = client.buildEvent('test', 'test2', 'test3', 'text', rawMessage);
+            result.should.deep.equal(expected);
+        });
+        it('should map pm arguments to buildEvent correctly', () => {
+            const expected = {
+                type: 'pm',
+                who: 'test2',
+                what: 'test3',
+                text: 'text',
+                raw: rawMessage,
+                command: undefined,
+                args: [],
+                reply: 'test2'
+            };
+            let result = client.buildEvent('pm', 'test2', 'test3', 'text', rawMessage);
             result.should.deep.equal(expected);
         });
         it('should not generate command for non command text', () => {
