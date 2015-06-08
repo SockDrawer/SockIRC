@@ -28,24 +28,7 @@ describe('client', () => {
             client.should.have.all.keys(fns.concat(objs));
         });
     });
-    const messages = {
-        message: 'message_received',
-        pm: 'message_received',
-        notice: 'message_received',
-        action: 'message_received',
-        join: 'channel_action',
-        part: 'channel_action',
-        kick: 'channel_action',
-        quit: 'user_action',
-        nick: 'user_action',
-        kill: 'user_action',
-        selfMessage: 'message_sent',
-        selfNotice: 'message_sent',
-        selfAction: 'message_sent',
-        raw: 'raw',
-        error: 'error',
-        badMessage: 'unknown'
-    };
+
     const rawMessage = {
         'message': 'foo'
     };
@@ -134,6 +117,24 @@ describe('client', () => {
         });
     });
     describe('selectEvent()', () => {
+        const messages = {
+            message: 'message_received',
+            pm: 'message_received',
+            notice: 'message_received',
+            action: 'message_received',
+            join: 'channel_action',
+            part: 'channel_action',
+            kick: 'channel_action',
+            quit: 'user_action',
+            nick: 'user_action',
+            kill: 'user_action',
+            selfMessage: 'message_sent',
+            selfNotice: 'message_sent',
+            selfAction: 'message_sent',
+            raw: 'raw',
+            error: 'error',
+            badMessage: 'unknown'
+        };
         Object.keys(messages).forEach((type) => {
             const event = messages[type];
             it('should select ' + event + ' event for ' + type + ' message', () => {
@@ -218,6 +219,24 @@ describe('client', () => {
     });
     describe('getHandler()', () => {
         it('should return a function when invoked', () => expect(client.getHandler(null)).to.be.a('function'));
+        const messages = {
+            message: 'message_received',
+            pm: 'message_received',
+            notice: 'message_received',
+            action: 'message_received',
+            join: 'channel_action',
+            part: 'channel_action',
+            kick: 'channel_action',
+            quit: 'user_action',
+            nick: 'user_action',
+            kill: 'user_action',
+            selfMessage: 'message_sent',
+            selfNotice: 'message_sent',
+            selfAction: 'message_sent',
+            raw: 'raw',
+            error: 'error',
+            badMessage: 'unknown'
+        };
         Object.keys(messages).forEach((message) => {
             let event = messages[message],
                 emitter = {
