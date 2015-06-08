@@ -14,4 +14,3 @@ after_script:
 env:
   global:
     COVERALLS_SERVICE_NAME: travis-ci
-    COVERALLS_REPO_TOKEN: FvloHR8QKMNlY0zQrSzgRa48J3GJ5KhBO
