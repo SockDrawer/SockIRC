@@ -11,6 +11,23 @@ const client = require('../client'),
     IRCClient = require('irc').Client;
 
 describe('client', () => {
+    describe('exports', () => {
+        let fns = ['connect', 'registerListeners', 'buildEvent', 'selectEvent', 'getHandler', 'augmentEvents'],
+            objs = [];
+        describe('should export expected functions:', () => {
+            fns.forEach((fn) => {
+                it(fn + '()', () => expect(client[fn]).to.be.a('function'));
+            });
+        });
+        describe('should export expected objects', () => {
+            objs.forEach((obj) => {
+                it('should export ' + obj, () => expect(client[obj]).to.be.a('object'));
+            });
+        });
+        it('should export only expected keys', () => {
+            client.should.have.all.keys(fns.concat(objs));
+        });
+    });
     const messages = {
         message: 'message_received',
         pm: 'message_received',
@@ -29,79 +46,77 @@ describe('client', () => {
         error: 'error',
         badMessage: 'unknown'
     };
-    describe('test mode exports', () => {
-        const fns = ['connect', 'registerListeners', 'buildEvent', 'selectEvent', 'getHandler', 'augmentEvents'];
-        fns.forEach((fn) => it('should expose ' + fn, () => expect(client[fn]).to.be.a('function')));
-    });
     const rawMessage = {
         'message': 'foo'
     };
     describe('registerListeners()', () => {
-        const events = {
-            'join': {
-                args: ['channel', 'nickname', rawMessage],
-                expect: ['join', 'nickname', 'channel', 'joined channel channel', rawMessage]
-            },
-            'part': {
-                args: ['channel', 'nickname', 'reason', rawMessage],
-                expect: ['part', 'nickname', 'channel', 'left channel channel (reason)', rawMessage]
-            },
-            'quit': {
-                args: ['nickname', 'reason', rawMessage],
-                expect: ['quit', 'nickname', null, 'quit (reason)', rawMessage]
-            },
-            'kick': {
-                args: ['channel', 'nickname1', 'nickname2', 'reason', rawMessage],
-                expect: ['kick', 'nickname2', 'channel', 'kicked nickname1 (reason)', rawMessage]
-            },
-            'kill': {
-                args: ['nickname', 'reason', undefined, rawMessage],
-                expect: ['kill', 'nickname', null, 'killed (reason)', rawMessage]
-            },
-            'message': {
-                args: ['nickname', 'channel', 'text', rawMessage],
-                expect: ['message', 'nickname', 'channel', 'text', rawMessage]
-            },
-            'pm': {
-                args: ['nickname', 'text', rawMessage],
-                expect: ['pm', 'nickname', 'testbot', 'text', rawMessage]
-            },
-            'notice': {
-                args: ['nickname', 'channel', 'text', rawMessage],
-                expect: ['notice', 'nickname', 'channel', 'text', rawMessage]
-            },
-            'nick': {
-                args: ['nickname1', 'nickname2', undefined, rawMessage],
-                expect: ['nick', 'nickname1', null, 'changed nickname to nickname2', rawMessage]
-            },
-            'raw': {
-                args: [rawMessage],
-                expect: ['raw', null, null, null, rawMessage]
-            },
-            'error': {
-                args: [rawMessage],
-                expect: ['error', null, null, null, rawMessage]
-            },
-            'action': {
-                args: ['nickname', 'channel', 'text', rawMessage],
-                expect: ['action', 'nickname', 'channel', 'text', rawMessage]
-            }
-        };
-        Object.keys(events).forEach((event) => {
+        it('should register expected handlers', () => {
+            const messages = ['message', 'pm', 'notice', 'action', 'join', 'part', 'kick', 'quit', 'nick', 'kill',
+                'raw', 'error'
+            ];
             const handles = {};
             client.registerListeners({
                 opt: {
                     nick: 'testbot'
                 },
                 on: (e, fn) => handles[e] = fn
-            }, (event_, who, what, text, raw) => {
-                [event_, who, what, text, raw].should.deep.equal(events[event].expect);
-            });
-            it('should register ' + event + ' handler', () => {
-                handles.should.have.property(event);
-            });
-            it('should map ' + event + ' arguments correctly', () => {
-                handles[event].apply(this, events[event].args);
+            }, () => {});
+            handles.should.have.all.keys(messages);
+        });
+        describe('should normalize arguments for IRC event:', () => {
+            [
+                ['join', ['channel', 'nickname', rawMessage],
+                    ['join', 'nickname', 'channel', 'joined channel channel', rawMessage]
+                ],
+                ['part', ['channel', 'nickname', 'reason', rawMessage],
+                    ['part', 'nickname', 'channel', 'left channel channel (reason)', rawMessage]
+                ],
+                ['quit', ['nickname', 'reason', rawMessage],
+                    ['quit', 'nickname', null, 'quit (reason)', rawMessage]
+                ],
+                ['kick', ['channel', 'nickname1', 'nickname2', 'reason', rawMessage],
+                    ['kick', 'nickname2', 'channel', 'kicked nickname1 (reason)', rawMessage]
+                ],
+                ['kill', ['nickname', 'reason', undefined, rawMessage],
+                    ['kill', 'nickname', null, 'killed (reason)', rawMessage]
+                ],
+                ['message', ['nickname', 'channel', 'text', rawMessage],
+                    ['message', 'nickname', 'channel', 'text', rawMessage]
+                ],
+                ['pm', ['nickname', 'text', rawMessage],
+                    ['pm', 'nickname', 'testbot', 'text', rawMessage]
+                ],
+                ['notice', ['nickname', 'channel', 'text', rawMessage],
+                    ['notice', 'nickname', 'channel', 'text', rawMessage]
+                ],
+                ['nick', ['nickname1', 'nickname2', undefined, rawMessage],
+                    ['nick', 'nickname1', null, 'changed nickname to nickname2', rawMessage]
+                ],
+                ['raw', [rawMessage],
+                    ['raw', null, null, null, rawMessage]
+                ],
+                ['error', [rawMessage],
+                    ['error', null, null, null, rawMessage]
+                ],
+                ['action', ['nickname', 'channel', 'text', rawMessage],
+                    ['action', 'nickname', 'channel', 'text', rawMessage]
+                ]
+            ].forEach((event) => {
+                const name = event[0],
+                    args = event[1],
+                    expected = event[2],
+                    handles = {};
+                client.registerListeners({
+                    opt: {
+                        nick: 'testbot'
+                    },
+                    on: (e, fn) => handles[e] = fn
+                }, (event_, who, what, text, raw) => {
+                    [event_, who, what, text, raw].should.deep.equal(expected);
+                });
+                it(name, () => {
+                    handles[name].apply(this, args);
+                });
             });
         });
         it('should not propagate at message directed at bot (should use PM instead)', () => {
@@ -183,19 +198,17 @@ describe('client', () => {
             let result = client.buildEvent('type', 'who', 'what', undefined, {});
             expect(result.text).to.equal('');
         });
-        const spaces = [' ', '\f', '\r', '\t', '\v', '\u00a0', '\u1680', '\u180e', '\u2000', '\u2001', '\u2002',
-            '\u2003', '\u2004', '\u2005', '\u2006', '\u2007', '\u2008', '\u2009', '\u200a', '\u2028', '\u2029',
-            '\u202f', '\u205f', '\u3000'
-        ];
-        const codepoint = (a) => {
-            let res = ('0000' + a.charCodeAt().toString(16));
-            return '\\u' + res.substring(res.length - 4);
-        };
-        spaces.forEach((space) => {
-            let str = codepoint(space);
-            it('should split arguments on ' + str + ' character', () => {
-                let result = client.buildEvent('type', 'who', 'what', '!command a' + space + 'b', {});
-                expect(result.args).to.deep.equal(['a', 'b']);
+        describe('should split arguments on recognized space character:', () => {
+            [' ', '\f', '\r', '\t', '\v', '\u00a0', '\u1680', '\u180e', '\u2000', '\u2001', '\u2002',
+                '\u2003', '\u2004', '\u2005', '\u2006', '\u2007', '\u2008', '\u2009', '\u200a', '\u2028', '\u2029',
+                '\u202f', '\u205f', '\u3000'
+            ].forEach((space) => {
+                let str = ('0000' + space.charCodeAt().toString(16));
+                str = '\\u' + str.substring(str.length - 4);
+                it(str + ' as separator', () => {
+                    let result = client.buildEvent('type', 'who', 'what', '!command a' + space + 'b', {});
+                    expect(result.args).to.deep.equal(['a', 'b']);
+                });
             });
         });
         it('should not split arguments on \\n character', () => {

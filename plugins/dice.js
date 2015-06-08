@@ -1,4 +1,5 @@
 'use strict';
+const util = require('../util');
 
 const matchers = {
     Fate: {
@@ -90,8 +91,13 @@ function getDice(sides, count) {
 }
 exports.getDice = getDice;
 
-
 exports.begin = function (client) {
     client.on('message_received', (payload) => rollDice(client, payload));
 };
+
+exports.stop = function () {
+    util.log('Dice Stopping');
+};
+
 exports.defaults = {};
+exports.config = {};
