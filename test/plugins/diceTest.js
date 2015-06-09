@@ -9,7 +9,8 @@ chai.should();
 const expect = chai.expect;
 
 // The thing we're testing
-const dice = require('../../plugins/dice');
+const dice = require('../../plugins/dice'),
+    util = require('../../util');
 
 describe('dice', () => {
     describe('exports', () => {
@@ -321,6 +322,18 @@ describe('dice', () => {
                 args: ['4dF']
             });
             client.notice.called.should.be.true;
+        });
+    });
+    describe('stop', () => {
+        it('should log message on stop', () => {
+            const log = util.log,
+                spy = sinon.spy();
+            util.log = spy;
+            dice.stop();
+            util.log = log;
+            spy.called.should.be.true;
+            spy.lastCall.args.shoud.have.length(1);
+            spy.lastCall.args[0].should.equal('Dice Stopping');
         });
     });
 });
