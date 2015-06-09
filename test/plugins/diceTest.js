@@ -332,7 +332,7 @@ describe('dice', () => {
             dice.stop();
             util.log = log;
             spy.called.should.be.true;
-            spy.lastCall.args.shoud.have.length(1);
+            spy.lastCall.args.should.have.length(1);
             spy.lastCall.args[0].should.equal('Dice Stopping');
         });
     });
