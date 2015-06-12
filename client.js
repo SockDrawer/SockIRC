@@ -1,6 +1,7 @@
 'use strict';
 const EventEmitter = require('events').EventEmitter,
-    IRCClient = require('irc').Client;
+    IRCClient = require('irc').Client,
+    commands = require('./commands');
 
 const spaces = /[ \f\r\t\v\u00a0\u1680\u180e\u2000-\u200a\u2028\u2029\u202f\u205f\u3000]+/;
 
@@ -52,13 +53,14 @@ function selectEvent(type) {
 }
 
 function buildEvent(type, who, what, text, raw) {
-    let command, args = [], reply = what;
+    let command, args = [],
+        reply = what;
     text = text || '';
     if (text[0] === '!') {
         args = text.split(spaces);
         command = args.shift();
     }
-    if (type === 'pm'){
+    if (type === 'pm') {
         reply = who;
     }
     return {
@@ -73,10 +75,14 @@ function buildEvent(type, who, what, text, raw) {
     };
 }
 
-function getHandler(emitter) {
+
+function getHandler(emitter, client) {
     return function handleMessage(type, who, what, text, raw) {
         const event = selectEvent(type),
             payload = buildEvent(type, who, what, text, raw);
+        if (event === 'message_received') {
+            commands.process(client, payload);
+        }
         emitter.emit(event, payload);
     };
 }
@@ -114,7 +120,7 @@ function connect(config) {
             floodProtection: true,
             autoConnect: false
         }),
-        handler = getHandler(events);
+        handler = getHandler(events, client);
     registerListeners(client, handler);
     augmentEvents(events, client);
     /* istanbul ignore else */
