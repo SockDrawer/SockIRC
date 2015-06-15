@@ -6,6 +6,7 @@ const matchers = {
         matcher: /^([1-9]\d*)dF(ate)?((\+|-)\d+)?$/i,
         parser: (match) => {
             return {
+                input: match[0],
                 sides: 6,
                 count: parseInt(match[1], 10),
                 bonus: parseInt(match[3] || '0', 10)
@@ -27,6 +28,7 @@ const matchers = {
         matcher: /^([1-9]\d*)d([1-9]\d*)$/i,
         parser: (match) => {
             return {
+                input: match[0],
                 sides: parseInt(match[2], 10),
                 count: parseInt(match[1], 10)
             };
@@ -34,7 +36,7 @@ const matchers = {
         formatter: (match, dice) => {
             let rolls = dice.join(', '),
                 sum = dice.reduce((partial, die) => partial + die, 0);
-            return '|| ' + rolls + ' || ' + sum;
+            return '|| (' + match.input + ') ' + rolls + ' || ' + sum;
         },
         multiple: true
     }
@@ -76,18 +78,19 @@ function rollDice(client, event) {
     }
     let result = '';
     while (system.matcher.test(event.args[0])) {
-        const arg = event.args.shift();
-        const roll = system.parser(system.matcher.exec(arg));
-        const dice = getDice(roll.sides, roll.count);
+        const arg = event.args.shift(),
+            roll = system.parser(system.matcher.exec(arg)),
+            dice = getDice(roll.sides, roll.count);
         result += system.formatter(roll, dice);
         if (!system.multiple) {
             break;
         }
+        result += ' ';
     }
     if (event.args[0] === '--') {
         event.args.shift();
     }
-    return reply(client, event, result);
+    return reply(client, event, result.replace(/\s+$/g, ''));
 }
 exports.rollDice = rollDice;
 

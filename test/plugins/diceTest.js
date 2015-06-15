@@ -150,6 +150,7 @@ describe('dice', () => {
             ].forEach((test) => {
                 it(JSON.stringify(test[0]).replace(/null/g, 'undefined'), () => {
                     parser(test[0]).should.deep.equal({
+                        input: test[0][0],
                         count: test[1],
                         sides: test[2]
                     });
@@ -179,6 +180,7 @@ describe('dice', () => {
             ].forEach((test) => {
                 it(JSON.stringify(test[0]).replace(/null/g, 'undefined'), () => {
                     parser(test[0]).should.deep.equal({
+                        input: test[0][0],
                         sides: 6,
                         count: test[1],
                         bonus: test[2]
@@ -192,23 +194,25 @@ describe('dice', () => {
         describe('should produce expected output for given input:', () => {
             [
                 [
-                    [1, 1, 1, 1], '|| 1, 1, 1, 1 || 4'
+                    [1, 1, 1, 1], '4d1', '|| (4d1) 1, 1, 1, 1 || 4'
                 ],
                 [
-                    [0, 1, 0, 1], '|| 0, 1, 0, 1 || 2'
+                    [0, 1, 0, 1], '4d6', '|| (4d6) 0, 1, 0, 1 || 2'
                 ],
                 [
-                    [3, 3, 3, 3], '|| 3, 3, 3, 3 || 12'
+                    [3, 3, 3, 3], '4d6', '|| (4d6) 3, 3, 3, 3 || 12'
                 ],
                 [
-                    [4, 4, 4, 4], '|| 4, 4, 4, 4 || 16'
+                    [4, 4, 4, 4], '4d6', '|| (4d6) 4, 4, 4, 4 || 16'
                 ],
                 [
-                    [3, 4, 3, 4], '|| 3, 4, 3, 4 || 14'
+                    [3, 4, 3, 4], '4d4', '|| (4d4) 3, 4, 3, 4 || 14'
                 ]
             ].forEach((test) => {
                 it(JSON.stringify(test[0]), () => {
-                    formatter({}, test[0]).should.equal(test[1]);
+                    formatter({
+                        input: test[1]
+                    }, test[0]).should.equal(test[2]);
                 });
             });
         });
