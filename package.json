@@ -21,6 +21,6 @@
   "scripts": {
     "start": "node --harmony SockBot.js",
     "lint": "eslint .",
-    "test": "node --harmony --harmony_arrow_functions  node_modules/.bin/istanbul cover _mocha -- --recursive -R dot"
+    "test": "node --harmony --harmony_arrow_functions  node_modules/.bin/istanbul cover _mocha -- --recursive"
   }
 }
