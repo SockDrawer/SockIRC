@@ -22,6 +22,21 @@ const matchers = {
             return '|| ' + symbols.join(' ') + ' || ' + total + calc;
         },
         multiple: false
+    },
+    DnD: {
+        matcher: /^([1-9]\d*)d([1-9]\d*)$/i,
+        parser: (match) => {
+            return {
+                sides: parseInt(match[2], 10),
+                count: parseInt(match[1], 10)
+            };
+        },
+        formatter: (match, dice) => {
+            let rolls = dice.join(', '),
+                sum = dice.reduce((partial, die) => partial + die, 0);
+            return '|| ' + rolls + ' || ' + sum;
+        },
+        multiple: true
     }
 };
 exports.matchers = matchers;

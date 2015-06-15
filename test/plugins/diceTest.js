@@ -41,6 +41,39 @@ describe('dice', () => {
             });
         });
     });
+    describe('matchers (DnD)', () => {
+        const matcher = dice.matchers.DnD.matcher;
+        describe('test DnD dice inputs expecting negative match', () => {
+            [
+                ['arbitrary text', 'nomatch'],
+                ['negative dice', '-5d4'],
+                ['zero dice', '0d5'],
+                ['negative sides', '5d-3'],
+                ['zero sides', '5d0'],
+                ['unrecognized suffix', '4d8-nomatch'],
+                ['embedded dice 1', 'embed4d4'],
+                ['embedded dice 2', '4d6embed'],
+                ['embedded dice 3', 'emb4d12ed'],
+                ['embedded dice 4', '4dembed20']
+            ].forEach((test) => {
+                it(test[0] + ' (' + test[1] + ')', () => {
+                    expect(matcher.exec(test[1])).to.equal(null);
+                });
+            });
+        });
+        describe('Test DnD Dice inputs expecting positive match', () => {
+            [
+                ['4d6', ['4', '6']],
+                ['40d6', ['40', '6']],
+                ['4d20', ['4', '20']]
+            ].forEach((test) => {
+                it(test[0], () => {
+                    test[1].unshift(test[0]);
+                    (matcher.exec(test[0]) || {}).slice().should.deep.equal(test[1]);
+                });
+            });
+        });
+    });
     describe('matchers (Fate)', () => {
         const matcher = dice.matchers.Fate.matcher;
         describe('Test Fate Dice inputs expecting negative match', () => {
@@ -98,6 +131,32 @@ describe('dice', () => {
             });
         });
     });
+    describe('parsers (DnD)', () => {
+        const parser = dice.matchers.DnD.parser;
+        describe('parser produces correct output from given inputs', () => {
+            [
+                [
+                    ['4d0', '4', '0'], 4, 0
+                ],
+                [
+                    ['4d2', '4', '2'], 4, 2
+                ],
+                [
+                    ['4d6', '4', '6'], 4, 6
+                ],
+                [
+                    ['10d10', '10', '10'], 10, 10
+                ]
+            ].forEach((test) => {
+                it(JSON.stringify(test[0]).replace(/null/g, 'undefined'), () => {
+                    parser(test[0]).should.deep.equal({
+                        count: test[1],
+                        sides: test[2]
+                    });
+                });
+            });
+        });
+    });
     describe('parsers (Fate)', () => {
         const parser = dice.matchers.Fate.parser;
         describe('parser produces correct output from given inputs', () => {
@@ -124,6 +183,32 @@ describe('dice', () => {
                         count: test[1],
                         bonus: test[2]
                     });
+                });
+            });
+        });
+    });
+    describe('formatters (DnD)', () => {
+        const formatter = dice.matchers.DnD.formatter;
+        describe('should produce expected output for given input:', () => {
+            [
+                [
+                    [1, 1, 1, 1], '|| 1, 1, 1, 1 || 4'
+                ],
+                [
+                    [0, 1, 0, 1], '|| 0, 1, 0, 1 || 2'
+                ],
+                [
+                    [3, 3, 3, 3], '|| 3, 3, 3, 3 || 12'
+                ],
+                [
+                    [4, 4, 4, 4], '|| 4, 4, 4, 4 || 16'
+                ],
+                [
+                    [3, 4, 3, 4], '|| 3, 4, 3, 4 || 14'
+                ]
+            ].forEach((test) => {
+                it(JSON.stringify(test[0]), () => {
+                    formatter({}, test[0]).should.equal(test[1]);
                 });
             });
         });
@@ -288,7 +373,9 @@ describe('dice', () => {
                 ['one dice comment', ['4dF', 'comment'], /^||( \[.\]){4} || \d+ comment$/],
                 ['one dice dash comment', ['4dF', '--', 'comment'], /^||( \[.\]){4} || \d+ comment$/],
                 ['one fate dice two requested', ['4dF', '4df+3'], /^||( \[.\]){4} || \d+ 4dF\+3$/],
-                ['one fate dice dash two requected', ['4dF', '--', '5dF'], /^||( \[.\]){4} || \d+ 5dF$/]
+                ['one fate dice dash two requected', ['4dF', '--', '5dF'], /^||( \[.\]){4} || \d+ 5dF$/],
+                ['one DnD dice dash two requected', ['6d4', '--', '5dF'], /^||( \d){6} || \d+ 5dF$/],
+                ['one DnD dice dash two requected', ['6d4', '6d6', '--', '5dF'], /^(||( \d){6} || \d+){2} || 5dF$/]
             ].forEach((test) => {
                 it('should roll the correct number of dice: ' + test[0], () => {
                     let client = {
